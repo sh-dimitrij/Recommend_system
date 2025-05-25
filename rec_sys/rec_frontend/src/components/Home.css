@@ -1,0 +1,103 @@
+/* src/components/Home.css */
+body {
+  background-color: #b7c892;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.nav-button {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: 48px;               /* квадратная форма */
+  height: 48px;
+  display: flex;             /* центрирование */
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 1001;
+  transition: background 0.3s;
+  border-radius: 0.5rem;     /* округлые углы */
+}
+
+.nav-button:hover {
+  background-color: #a5b982; /* темнее при наведении */
+}
+
+.profile-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1001;
+  transition: background 0.3s;
+}
+.profile-button:hover {
+  background-color: #a5b982;
+  border-radius: 0.5rem;
+}
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px;
+  width: 250px;
+  height: 100%;
+  background-color: #a9bb87;
+  padding-top: 60px;
+  transition: 0.3s;
+  z-index: 1000;
+}
+.sidebar.open {
+  left: 0;
+}
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+.sidebar li {
+  padding: 12px 20px;
+  cursor: pointer;
+}
+.sidebar li:hover {
+  background-color: #94a96d;
+  color: white;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 800;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.important-button {
+  background-color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+.important-button:hover {
+  background-color: #e4e4e4;
+}

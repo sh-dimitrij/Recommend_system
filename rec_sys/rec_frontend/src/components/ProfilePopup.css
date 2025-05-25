@@ -1,0 +1,68 @@
+.profile-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002;
+  }
+  
+  .profile-popup {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    max-width: 620px;        /* 🔹 увеличено с 420px */
+    width: 95%;              /* адаптивно */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .popup-avatar {
+    color: #b7c892;
+  }
+  
+  .profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 17px;         /* 🔹 увеличен шрифт с 15px */
+  }
+  
+  .profile-table td:first-child {
+    color: #555;
+    padding: 6px 10px;
+    font-weight: 600;
+    width: 40%;              /* немного уменьшено, чтобы второму столбцу дать больше места */
+    white-space: nowrap;
+  }
+  
+  .profile-table td:last-child {
+    padding: 6px 10px;
+    text-align: right;
+    white-space: nowrap;     /* 🔹 текст в одну строку */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 🔹 на всякий случай, если текст слишком длинный */
+  }
+  
+  .close-button {
+    margin-top: 1.2rem;
+    padding: 0.6rem 1.4rem;     /* 🔹 увеличена высота и ширина */
+    font-size: 18px;             /* 🔹 увеличен шрифт */
+    border: none;
+    background: #b7c892;
+    color: #fff;
+    border-radius: 10px;         /* слегка увеличена округлость */
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .close-button:hover {
+    background: #94a96d;
+  }
+  
