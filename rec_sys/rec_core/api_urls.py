@@ -1,9 +1,27 @@
 from django.urls import path
-from .views import login_view, logout_view, current_user, get_csrf_token
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from .views import ( login_view, UserView, MyTokenObtainPairView, 
+                    FacultyListView, DepartmentListView, CourseListView, SubjectListAPIView,
+                    TagListAPIView, save_questionnaire, StudentGradesView, TaskProgressUpdateView )
 
 urlpatterns = [
-    path('csrf/',   get_csrf_token, name='csrf'),   # токен можем оставить – не помешает
-    path('login/',  login_view,      name='login'),
-    path('logout/', logout_view,     name='logout'),
-    path('current_user/', current_user, name='current_user'),
+    
+    path('student-grades/', StudentGradesView.as_view(), name='student-grades'),
+    path('task-progress/<int:pk>/', TaskProgressUpdateView.as_view(), name='task-progress-update'),
+    
+    path('questionnaire/save/', save_questionnaire, name='save_questionnaire'),
+    
+    path("tags/", TagListAPIView.as_view(), name="tag-list"),
+    path('subjects/', SubjectListAPIView.as_view(), name='subject-list'),
+    path('courses/', CourseListView.as_view(), name='course-list'),
+    path('departments/', DepartmentListView.as_view(), name='department-list'),
+    path('faculties/', FacultyListView.as_view(), name='faculty-list'),
+    
+    path('user/', UserView.as_view(), name='user'),
+    path('login/', login_view, name='login'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

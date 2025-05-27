@@ -1,0 +1,35 @@
+/* Sidebar.css */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #9ec27a;
+    padding-top: 60px;
+    transition: 0.3s;
+    z-index: 1000;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sidebar li {
+    padding: 12px 20px;
+    cursor: pointer;
+  }
+  .sidebar li:hover {
+    background-color: #90b56b;
+    color: white;
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 800;
+  }
+  

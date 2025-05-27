@@ -1,6 +1,5 @@
-// src/App.js
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Home from './components/Home';
 import GradeList from './components/GradeList';
@@ -28,14 +27,25 @@ function App() {
     }
   }, []);
 
+  if (userData === null) {
+    // Пока проверяем авторизацию, можно показать загрузку
+    return <div>Загрузка...</div>;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
-        {userData ? (
-          <Route path="/*" element={<Home userData={userData} />} />
+        {!userData ? (
+          <>
+            <Route path="/login" element={<Login setUserData={setUserData} />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </>
         ) : (
-          <Route path="/*" element={<Login setUserData={setUserData} />} />
-          
+          <>
+            <Route path="/" element={<Home userData={userData} />} />
+            <Route path="/grades" element={<GradeList token={localStorage.getItem('accessToken')} />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </>
         )}
       </Routes>
     </BrowserRouter>

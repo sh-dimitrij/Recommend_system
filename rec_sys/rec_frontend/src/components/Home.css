@@ -1,17 +1,18 @@
-/* src/components/Home.css */
+/* базовый фон */
 body {
-  background-color: #b7c892;
+  background-color: #ccf4a3   ;
   margin: 0;
   font-family: Arial, sans-serif;
 }
 
+/* кнопка-бургер слева сверху */
 .nav-button {
   position: fixed;
   top: 1rem;
   left: 1rem;
-  width: 48px;               /* квадратная форма */
+  width: 48px;
   height: 48px;
-  display: flex;             /* центрирование */
+  display: flex;
   align-items: center;
   justify-content: center;
   background: none;
@@ -19,14 +20,12 @@ body {
   font-size: 28px;
   cursor: pointer;
   z-index: 1001;
+  border-radius: 0.5rem;
   transition: background 0.3s;
-  border-radius: 0.5rem;     /* округлые углы */
 }
+.nav-button:hover { background-color: #9ec27a; }
 
-.nav-button:hover {
-  background-color: #a5b982; /* темнее при наведении */
-}
-
+/* кнопка профиля справа сверху */
 .profile-button {
   position: fixed;
   top: 1rem;
@@ -36,59 +35,26 @@ body {
   padding: 10px;
   cursor: pointer;
   z-index: 1001;
+  border-radius: 0.5rem;
   transition: background 0.3s;
 }
-.profile-button:hover {
-  background-color: #a5b982;
-  border-radius: 0.5rem;
-}
+.profile-button:hover { background-color: #9ec27a; }
+
 .profile-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
 }
 
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: 250px;
-  height: 100%;
-  background-color: #a9bb87;
-  padding-top: 60px;
-  transition: 0.3s;
-  z-index: 1000;
-}
-.sidebar.open {
-  left: 0;
-}
-.sidebar ul {
-  list-style-type: none;
-  padding: 0;
-}
-.sidebar li {
-  padding: 12px 20px;
-  cursor: pointer;
-}
-.sidebar li:hover {
-  background-color: #94a96d;
-  color: white;
-}
 
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.2);
-  z-index: 800;
-}
 
+/* центр страницы */
 .main-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  /* justify-content: center; */
 }
 
+/* большая центральная кнопка */
 .important-button {
   background-color: white;
   border: none;
@@ -98,6 +64,4 @@ body {
   border-radius: 0.5rem;
   transition: background 0.3s;
 }
-.important-button:hover {
-  background-color: #e4e4e4;
-}
+.important-button:hover { background-color: #e4e4e4; }
