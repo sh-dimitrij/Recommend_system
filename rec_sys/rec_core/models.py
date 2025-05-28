@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.urls import reverse
 
 class Faculty(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -82,22 +83,14 @@ class TaskType(models.Model):
 
 class Task(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, null=True, blank=True)
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True, blank=True)
+    # semester = models.ForeignKey(Semester, on_delete=models.CASCADE, null=True, blank=True)
     type = models.ForeignKey(TaskType, on_delete=models.PROTECT)
     deadline = models.DateTimeField()
 
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        if not self.module and not self.semester:
-            raise ValidationError("Task должен быть привязан либо к модулю, либо к семестру.")
-        if self.module and self.semester:
-            raise ValidationError("Task не может быть одновременно привязан и к модулю, и к семестру.")
 
     def __str__(self):
         if self.module:
             return f"{self.type.name} ({self.module})"
-        elif self.semester:
-            return f"{self.type.name} (НИР, {self.semester})"
         return f"{self.type.name} (без привязки)"
 
     class Meta:
@@ -119,6 +112,10 @@ class ModuleProgress(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE)
     score = models.PositiveSmallIntegerField(default=0)
 
+    def __str__(self):
+        
+        return f"{self.module} - {self.score}"
+
     class Meta:
         unique_together = ('student', 'module')
         
@@ -132,25 +129,55 @@ class TaskProgress(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    def __str__(self):
+        
+        return f"{self.name}"
 
+# rec_core/models.py
 class EBook(models.Model):
-    title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255)
-    tags = models.ManyToManyField(Tag)
+    DIFFICULTY = [
+        ('BEGINNER', 'Начинающий'),
+        ('INTERMEDIATE', 'Средний'),
+        ('ADVANCED', 'Продвинутый'),
+    ]
 
-# class Recommendation(models.Model):
-#     book = models.ForeignKey(EBook, on_delete=models.CASCADE)
-#     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     created_at = models.DateTimeField(auto_now_add=True)
+    title   = models.CharField(max_length=255)
+    author  = models.CharField(max_length=255)
+    tags    = models.ManyToManyField(Tag)
+    difficulty_level = models.CharField(
+        max_length=12, choices=DIFFICULTY, default='BEGINNER'
+    )
+    views = models.IntegerField(default=0)
+    link = models.CharField(max_length=255)
+    
+    def __str__(self):
+        
+        return f"{self.author}|{self.title}"
+    
+    def get_absolute_url(self):
+        return self.link
 
-# class RecommendationHistory(models.Model):
-#     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     recommendation = models.ForeignKey(Recommendation, on_delete=models.CASCADE)
 
-# class Notification(models.Model):
-#     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-#     task = models.ForeignKey(Task, on_delete=models.CASCADE)
-#     created_at = models.DateTimeField(auto_now_add=True)
+class Recommendation(models.Model):
+    book = models.ForeignKey(EBook, on_delete=models.CASCADE)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class RecommendationHistory(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    title   = models.CharField(max_length=255)
+    author  = models.CharField(max_length=255)
+    link    = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} → {self.title}"
+
+
+class Notification(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    # created_at = models.DateTimeField(auto_now_add=True)
 
 class Questionnaire(models.Model):
     DIFFICULTY_LEVELS = [
@@ -187,3 +214,14 @@ class Questionnaire(models.Model):
     class Meta:
         verbose_name = "Форма"
         verbose_name_plural = "Формы"
+        
+class ResearchProgress(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    score = models.PositiveSmallIntegerField(default=0)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    is_completed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('student', 'semester')
+

@@ -4,9 +4,9 @@ from .models import (
     CustomUser, Faculty, Department, Course, Semester,
     Subject, Module, TaskType, Task, Tag,
     Questionnaire, ModuleProgress, TaskProgress,
-    EBook,
+    EBook, ResearchProgress , Recommendation, RecommendationHistory, Notification
     # Раскомментируй эти модели, если хочешь их добавить в админку
-    # Recommendation, RecommendationHistory, Notification
+
 )
 
 @admin.register(CustomUser)
@@ -80,15 +80,17 @@ class TaskTypeAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ("type", "get_binding", "deadline")
     list_filter = ("type", "deadline")
-    search_fields = ("module__subject__name", "semester__course__number")
+    search_fields = ("module__subject__name", )  # удалил semester__course__number, если нет semester
 
     def get_binding(self, obj):
         if obj.module:
             return f"Модуль: {obj.module}"
-        elif obj.semester:
-            return f"НИР: {obj.semester}"
+        # Если НИР — это тип задачи, можно так:
+        elif obj.type == 'НИР':  # или другое условие, если есть поле type с таким значением
+            return "НИР"
         return "Не указано"
     get_binding.short_description = "Привязка"
+
 
 
 @admin.register(Tag)
@@ -132,27 +134,33 @@ class ModuleProgressAdmin(admin.ModelAdmin):
 class TaskProgressAdmin(admin.ModelAdmin):
     list_display = ("module_progress", "task", "is_completed")
     list_filter = ("is_completed",)
-    search_fields = ("module_progress__student_progress__student__username", "task__module__subject__name")
+    search_fields = ("module_progress__student__username", "task__module__subject__name")
 
 @admin.register(EBook)
 class EBookAdmin(admin.ModelAdmin):
-    list_display = ("title", "author")
+    list_display = ("title", "author", "difficulty_level", "views", "link")
     search_fields = ("title", "author")
     filter_horizontal = ("tags",)
 
-# @admin.register(Recommendation)
-# class RecommendationAdmin(admin.ModelAdmin):
-#     list_display = ("book", "student", "created_at")
-#     search_fields = ("book__title", "student__username")
-#     list_filter = ("created_at",)
+@admin.register(Recommendation)
+class RecommendationAdmin(admin.ModelAdmin):
+    list_display = ("book", "student", "created_at")
+    search_fields = ("book__title", "student__username")
+    list_filter = ("created_at",)
 
-# @admin.register(RecommendationHistory)
-# class RecommendationHistoryAdmin(admin.ModelAdmin):
-#     list_display = ("student", "recommendation")
-#     search_fields = ("student__username", "recommendation__book__title")
+@admin.register(RecommendationHistory)
+class RecommendationHistoryAdmin(admin.ModelAdmin):
+    list_display = ("student", "title", "author", "link", "created_at")
+    search_fields = ("student__username", "title", "author")
 
-# @admin.register(Notification)
-# class NotificationAdmin(admin.ModelAdmin):
-#     list_display = ("student", "task", "created_at")
-#     list_filter = ("created_at",)
-#     search_fields = ("student__username", "task__module__subject__name")
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("student", "task")
+    # list_filter = ("created_at",)
+    search_fields = ("student__username", "task__module__subject__name")
+
+@admin.register(ResearchProgress)
+class ResearchProgressAdmin(admin.ModelAdmin):
+    list_display = ("student", "semester", "task", "score", "is_completed")
+    list_filter = ("semester", "is_completed")
+    search_fields = ("student__username", "task__name")

@@ -5,6 +5,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
+
 /* кнопка-бургер слева сверху */
 .nav-button {
   position: fixed;
@@ -50,9 +51,10 @@ body {
 
 /* центр страницы */
 .main-container {
-  display: flex;
-  /* justify-content: center; */
+  display: block;
+
 }
+
 
 /* большая центральная кнопка */
 .important-button {
@@ -65,3 +67,22 @@ body {
   transition: background 0.3s;
 }
 .important-button:hover { background-color: #e4e4e4; }
+
+
+.recommendation-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.recommendation-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.content-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding-right: 40px; /* отступ от правого края */
+  max-width: 1200px;   /* или другая фиксированная ширина */
+  margin: 0 auto;      /* центрируем горизонтально */
+}

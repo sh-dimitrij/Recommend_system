@@ -2,7 +2,7 @@
   import React, { useState, useEffect, useRef } from "react";
   import "./SurveyForm.css";
 
-  export default function SurveyForm({ userData }) {
+  export default function SurveyForm({ userData, setRecommendation }) {
     /* ---------- Факультеты ---------- */
     const [facultiesList, setFacultiesList] = useState([]);
     const [faculty, setFaculty] = useState(userData?.faculty || "");
@@ -40,6 +40,8 @@
     /* ---------- Прочие поля ---------- */
     const [freeTime, setFreeTime] = useState("");
     const [difficulty, setDifficulty] = useState("");
+    
+    
 
     /* refs для клика вне компонента */
     const facRef = useRef(null);
@@ -151,7 +153,7 @@
     /* ──────────────────── Сохранение формы ──────────────────── */
     const handleSubmit = async (e) => {
       e.preventDefault();
-    
+  
       const payload = {
         faculty,
         department,
@@ -161,23 +163,41 @@
         difficulty_level: difficulty,
         interest_tags: tags.map(t => t.id),
       };
-    
-      const access = localStorage.getItem('accessToken');   // достаём токен
-
+  
+      const access = localStorage.getItem('accessToken');
+  
       try {
         const res = await fetch('http://localhost:8000/api/questionnaire/save/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${access}`,
-            // если нужен CSRF, добавить заголовок
           },
           body: JSON.stringify(payload),
         });
-    
+  
         if (res.ok) {
           alert('Форма успешно сохранена!');
-          // Тут можно сделать что-то ещё, например, перейти на другую страницу
+  
+          // Получаем новую рекомендацию после сохранения
+          const recRes = await fetch('http://localhost:8000/api/recommendation/latest/', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${access}`,
+            },
+          });
+  
+          if (recRes.ok) {
+            const newRecommendation = await recRes.json();
+  
+            // Обновляем состояние рекомендации в Home
+            setRecommendation(newRecommendation);
+  
+            // (Опционально) можно убрать alert или оставить для дебага
+            alert(`Рекомендация обновлена: ${newRecommendation.book_title}`);
+          } else {
+            alert('Ошибка при получении рекомендации');
+          }
         } else {
           const err = await res.json();
           alert('Ошибка при сохранении анкеты: ' + JSON.stringify(err));
@@ -186,6 +206,7 @@
         alert('Ошибка сети: ' + error.message);
       }
     };
+    
     /* ──────────────────── Фильтрация факультетов ──────────────────── */
     const handleFacultyChange = (e) => {
       const val = e.target.value;
@@ -415,6 +436,7 @@
           <input
             type="number"
             value={freeTime}
+            min="0"
             onChange={(e) => setFreeTime(e.target.value)}
             placeholder="Например: 5"
           />

@@ -1,0 +1,176 @@
+/* убираем маркеры у списка заданий */
+.task-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 4px 0 0;
+  }
+  
+/* Контейнер кнопки "Сохранить" с отступом справа */
+.save-btn-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    padding-left: 5vw;  /* отступ справа, чтобы кнопка не висела вплотную */
+  }
+  
+  /* Кнопка "Сохранить" */
+  .save-btn {
+    padding: 10px;
+    background-color: #94be70;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .save-btn:disabled {
+    background-color: #bdeabd;
+    cursor: default;
+    color: #666666;
+  }
+  
+  .save-btn:not(:disabled):hover {
+    background-color: #71a86b;
+  }
+  
+  /* Список заданий без маркеров */
+  .task-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 4px 0 0;
+  }
+  
+  /* Чекбокс в фирменном стиле, аккуратнее и с выравниванием */
+/* Чекбокс с зелёной рамкой всегда */
+.nice-checkbox span {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    height: 16px;
+    width: 16px;
+    border: 2px solid #71d41a; /* зеленая рамка всегда */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background: white;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  
+  /* Когда отмечено - фон и рамка зеленые */
+  .nice-checkbox input:checked ~ span {
+    background-color: #71d41a;
+    border-color: #71d41a;
+  }
+  
+  /* Галочка белая */
+  .nice-checkbox span:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Показать галочку при выборе */
+  .nice-checkbox input:checked ~ span:after {
+    display: block;
+  }
+  
+  /* Текст рядом с чекбоксом - flex контейнер, чтобы управлять отступами */
+  .nice-checkbox {
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+    line-height: 20px;
+    user-select: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* расстояние между текстом и датой */
+  }
+  
+  /* Основной тип задания — нормальный размер и цвет */
+  .nice-checkbox > .task-type {
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+  }
+  
+  /* Дата — мелким шрифтом, серым и с отступом слева */
+  .nice-checkbox > small {
+    font-size: 11px;
+    color: #666;
+    font-weight: normal;
+    margin-left: 4px;
+  }
+  .nice-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    pointer-events: none; /* чтобы кликали по лейблу */
+  }
+  
+  
+
+  /* --- таблица успеваемости ------------------------------------------ */
+.grade-table {
+  border-collapse: collapse;          /* убирает двойные линии */
+  min-width: 680px;                   /* чтобы не ужималась */
+  background: #fff;                   /* белый фон ячеек */
+  font-size: 15px;
+  border-radius: 8px;                 /* скругление общего контура */
+  overflow: hidden;                   /* чтобы скругление работало */
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+.grade-table thead {
+  background: #9ec27a;                /* тот же оттенок, что в Sidebar */
+  color: #fff;
+}
+
+.grade-table th,
+.grade-table td {
+  padding: 10px 14px;
+  border: 1px solid #9ec27a;          /* сетка */
+  text-align: left;
+}
+
+.grade-table th:first-child,
+.grade-table td:first-child {
+  width: 220px;                       /* колонка «Предмет» по-шире */
+}
+
+.grade-table .score-cell {            /* ячейка с input’ом */
+  white-space: nowrap;
+}
+
+.grade-table .score-cell input {
+  width: 64px;
+  padding: 4px 6px;
+  border: 1px solid #9ec27a;
+  border-radius: 4px;
+  background: #f6fff0;
+}
+
+/* при ховере строка подсвечивается лёгким оттенком */
+.grade-table tbody tr:hover {
+  background: #eefbe3;
+}
+/* ------------------------------------------------------------------- */
+  
+.main-container {  
+    width:100%; 
+    display:flex; 
+    justify-content:center; /* по-горизонтали */ 
+    align-items:flex-start; /* по-вертикали можно оставить сверху */ 
+    padding-top:40px; /* чтобы не прилипала к тулбару */ 
+  }

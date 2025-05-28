@@ -9,9 +9,9 @@ function Sidebar({ open, onClose, onNavigate }) {
         <ul>
           <li onClick={() => onNavigate('/')}>Главная</li>
           <li onClick={() => onNavigate('/grades')}>Успеваемость</li>
-          <li onClick={() => onNavigate('/')}>История</li>
-          <li onClick={() => onNavigate('/')}>Дедлайны</li>
-          <li onClick={() => onNavigate('/')}>Электронные книги</li>
+          <li onClick={() => onNavigate('/history')}>История</li>
+          <li onClick={() => onNavigate('/deadlines')}>Дедлайны</li>
+          <li onClick={() => onNavigate('/ebooks')}>Электронные книги</li>
         </ul>
       </div>
     </>

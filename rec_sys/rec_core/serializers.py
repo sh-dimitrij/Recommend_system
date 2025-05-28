@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import ( CustomUser, Department, Faculty, Course, Semester, Subject, Tag, Questionnaire,
-                     Task, Module, ModuleProgress, TaskProgress)
+                     Task, Module, ModuleProgress, TaskProgress, ResearchProgress, EBook, Recommendation,
+                     RecommendationHistory
+                     )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
@@ -47,6 +49,10 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
         ]
 
 
+class RecommendationHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = RecommendationHistory
+        fields = ['id', 'title', 'author', 'link', 'created_at']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -97,28 +103,67 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ['id', 'type', 'deadline']
 
 class TaskProgressSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='pk')  # 👈 добавить это
     task = TaskSerializer()
+
     class Meta:
         model = TaskProgress
-        fields = ['task', 'is_completed']
+        fields = ['id', 'task', 'is_completed']
+
+class RecommendationHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = RecommendationHistory
+        fields = ['id', 'student', 'title', 'author', 'link', 'created_at']
+        read_only_fields = fields
 
 class ModuleSerializer(serializers.ModelSerializer):
-    tasks_progress = serializers.SerializerMethodField()
-    max_score = serializers.IntegerField()
-    number = serializers.IntegerField()
-    
+    tasks_progress   = serializers.SerializerMethodField()
+    score            = serializers.SerializerMethodField()
+    module_progress_id = serializers.SerializerMethodField()   # 👈 понадобится фронту
+    max_score        = serializers.IntegerField()
+    number           = serializers.IntegerField()
+
     class Meta:
-        model = Module
-        fields = ['id', 'number', 'max_score', 'tasks_progress']
+        model  = Module
+        fields = [
+            'id', 'number',
+            'max_score',           # оставляем, чтобы показать «из 20»
+            'score',               # пользовательский балл
+            'module_progress_id',  # для PATCH-а
+            'tasks_progress'
+        ]
+
+    # --- вспомогательная «ленивая» инициализация -----------------------------
+    def _get_or_create_module_progress(self, module):
+        student = self.context['student']
+        mp, _ = ModuleProgress.objects.get_or_create(
+            student = student,
+            module  = module,
+            defaults={'score': 0}
+        )
+        # создаём TaskProgress-ы под все задания модуля
+        for task in Task.objects.filter(module=module):
+            TaskProgress.objects.get_or_create(
+                module_progress = mp,
+                task            = task
+            )
+        return mp
+    # --------------------------------------------------------------------------
 
     def get_tasks_progress(self, module):
-        student = self.context['student']
-        try:
-            module_progress = ModuleProgress.objects.get(student=student, module=module)
-        except ModuleProgress.DoesNotExist:
-            return []
-        task_progress_qs = TaskProgress.objects.filter(module_progress=module_progress).order_by('task__deadline')
-        return TaskProgressSerializer(task_progress_qs, many=True).data
+        mp = self._get_or_create_module_progress(module)
+        qs = TaskProgress.objects.filter(
+            module_progress = mp
+        ).order_by('task__deadline')
+        return TaskProgressSerializer(qs, many=True).data
+
+    def get_score(self, module):
+        return self._get_or_create_module_progress(module).score
+
+    def get_module_progress_id(self, module):
+        return self._get_or_create_module_progress(module).id
+
+
 
 class SubjectWithModulesSerializer(serializers.ModelSerializer):
     modules = serializers.SerializerMethodField()
@@ -130,3 +175,85 @@ class SubjectWithModulesSerializer(serializers.ModelSerializer):
     def get_modules(self, subject):
         modules = Module.objects.filter(subject=subject).order_by('number')
         return ModuleSerializer(modules, many=True, context=self.context).data
+    
+class TaskProgressUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()  # id TaskProgress
+
+    class Meta:
+        model = TaskProgress
+        fields = ['id', 'is_completed']
+
+class ModuleProgressUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()  # id ModuleProgress (для поиска)
+    score = serializers.IntegerField()
+    tasks_progress = TaskProgressUpdateSerializer(many=True)
+
+    class Meta:
+        model = ModuleProgress
+        fields = ['id', 'score', 'tasks_progress']
+
+    def update(self, instance, validated_data):
+        # Обновляем score модуля
+        instance.score = validated_data.get('score', instance.score)
+        instance.save()
+
+        # Обновляем задачи
+        tasks_data = validated_data.get('tasks_progress', [])
+        for task_data in tasks_data:
+            task_progress_id = task_data.get('id')
+            is_completed = task_data.get('is_completed')
+            try:
+                task_progress = TaskProgress.objects.get(id=task_progress_id, module_progress=instance)
+                task_progress.is_completed = is_completed
+                task_progress.save()
+            except TaskProgress.DoesNotExist:
+                pass  # Можно логировать или игнорировать
+
+        return instance
+    
+class ResearchProgressSerializer(serializers.ModelSerializer):
+    task_type = serializers.CharField(source='task.type.name')
+    task_deadline = serializers.DateTimeField(source='task.deadline')
+
+    class Meta:
+        model = ResearchProgress
+        fields = ['id', 'score', 'is_completed', 'task_type', 'task_deadline', 'task']
+        
+class EBookSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+
+    class Meta:
+        model  = EBook
+        fields = ['id', 'title', 'author', 'difficulty_level', 'tags', 'link', 'views']
+
+
+class RecommendationSerializer(serializers.ModelSerializer):
+    book_title = serializers.CharField(source='book.title')
+    book_author = serializers.CharField(source='book.author')  # если у книги есть author
+    book_link = serializers.CharField(source='book.link')  # или другой URL к книге
+
+    class Meta:
+        model = Recommendation
+        fields = ['id', 'book_title', 'book_author', 'book_link', 'created_at']
+        
+        
+class DeadlineTaskSerializer(serializers.ModelSerializer):
+    type = serializers.StringRelatedField()  # "РК", "ДЗ", "ЛР"
+    module = serializers.StringRelatedField()  # например, "М1 - Математика"
+    is_completed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Task
+        fields = ['id', 'type', 'module', 'deadline', 'is_completed']
+
+    def get_is_completed(self, obj):
+        user = self.context.get('user')
+        if not user:
+            return False
+
+        try:
+            mp = ModuleProgress.objects.get(student=user, module=obj.module)
+            tp = TaskProgress.objects.get(module_progress=mp, task=obj)
+            return tp.is_completed
+        except (ModuleProgress.DoesNotExist, TaskProgress.DoesNotExist):
+            return False
